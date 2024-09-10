@@ -69,7 +69,7 @@ func (s *WebAuthnService) BeginRegistration(userID string) (*model.PublicKeyCred
 	}, nil
 }
 
-func (s *WebAuthnService) VerifyRegistration(sessionID, userID string, r *http.Request) (model.WebauthnCredential, error) {
+func (s *WebAuthnService) VerifyRegistration(sessionID, userID string, ipAddress string, r *http.Request) (model.WebauthnCredential, error) {
 	var storedSession model.WebauthnSession
 	if err := s.db.First(&storedSession, "id = ?", sessionID).Error; err != nil {
 		return model.WebauthnCredential{}, err
@@ -104,6 +104,8 @@ func (s *WebAuthnService) VerifyRegistration(sessionID, userID string, r *http.R
 	if err := s.db.Create(&credentialToStore).Error; err != nil {
 		return model.WebauthnCredential{}, err
 	}
+
+	s.auditLogService.Create(model.AuditLogEventAddPasskey, ipAddress, r.UserAgent(), userID, model.AuditLogData{})
 
 	return credentialToStore, nil
 }
@@ -176,7 +178,7 @@ func (s *WebAuthnService) ListCredentials(userID string) ([]model.WebauthnCreden
 	return credentials, nil
 }
 
-func (s *WebAuthnService) DeleteCredential(userID, credentialID string) error {
+func (s *WebAuthnService) DeleteCredential(userID, credentialID, ipAddress, userAgent string) error {
 	var credential model.WebauthnCredential
 	if err := s.db.First(&credential, "id = ? AND user_id = ?", credentialID, userID).Error; err != nil {
 		return err
@@ -185,6 +187,8 @@ func (s *WebAuthnService) DeleteCredential(userID, credentialID string) error {
 	if err := s.db.Delete(&credential).Error; err != nil {
 		return err
 	}
+
+	s.auditLogService.Create(model.AuditLogEventRemovePasskey, ipAddress, userAgent, userID, model.AuditLogData{})
 
 	return nil
 }

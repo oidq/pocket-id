@@ -54,7 +54,7 @@ func (wc *WebauthnController) verifyRegistrationHandler(c *gin.Context) {
 	}
 
 	userID := c.GetString("userID")
-	credential, err := wc.webAuthnService.VerifyRegistration(sessionID, userID, c.Request)
+	credential, err := wc.webAuthnService.VerifyRegistration(sessionID, userID, c.ClientIP(), c.Request)
 	if err != nil {
 		utils.ControllerError(c, err)
 		return
@@ -136,7 +136,7 @@ func (wc *WebauthnController) deleteCredentialHandler(c *gin.Context) {
 	userID := c.GetString("userID")
 	credentialID := c.Param("id")
 
-	err := wc.webAuthnService.DeleteCredential(userID, credentialID)
+	err := wc.webAuthnService.DeleteCredential(userID, credentialID, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
 		utils.ControllerError(c, err)
 		return

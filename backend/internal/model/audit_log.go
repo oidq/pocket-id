@@ -24,6 +24,8 @@ const (
 	AuditLogEventSignIn                 AuditLogEvent = "SIGN_IN"
 	AuditLogEventClientAuthorization    AuditLogEvent = "CLIENT_AUTHORIZATION"
 	AuditLogEventNewClientAuthorization AuditLogEvent = "NEW_CLIENT_AUTHORIZATION"
+	AuditLogEventAddPasskey             AuditLogEvent = "ADD_NEW_PASSKEY"
+	AuditLogEventRemovePasskey          AuditLogEvent = "REMOVE_PASSKEY"
 )
 
 // Scan and Value methods for GORM to handle the custom type
